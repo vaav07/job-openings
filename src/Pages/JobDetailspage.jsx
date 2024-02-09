@@ -36,9 +36,16 @@ const JobDetailspage = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center item-center mt-40">
+        <div
+          class="w-12 h-12 rounded-full animate-spin
+              border-4 border-solid border-green-500 border-t-transparent"
+        ></div>
+      </div>
+    );
   }
-  console.log(jobDetail);
+
   return (
     <div className="container px-6 w-5/6 mt-4 mx-auto mb-8">
       <div>
@@ -82,7 +89,7 @@ const JobDetailspage = () => {
 
             <div className="">
               {state?.some.map((item) => (
-                <div className="my-6">
+                <div className="my-6" key={item.index}>
                   <Link
                     to={item?.applyUrl}
                     target="_blank"

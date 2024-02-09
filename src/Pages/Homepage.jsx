@@ -11,10 +11,18 @@ const Homepage = () => {
   const [error, setError] = useState(null);
 
   const [search, setSearch] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState({});
-  const [selectedLocations, setSelectedLocations] = useState({});
-  const [selectedFunctions, setSelectedFunctions] = useState({});
-  const [selectedValues, setSelectedValues] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState(
+    JSON.parse(sessionStorage.getItem("selectedDepartment")) || {}
+  );
+  const [selectedLocations, setSelectedLocations] = useState(
+    JSON.parse(sessionStorage.getItem("selectedLocations")) || {}
+  );
+  const [selectedFunctions, setSelectedFunctions] = useState(
+    JSON.parse(sessionStorage.getItem("selectedFunctions")) || {}
+  );
+  const [selectedValues, setSelectedValues] = useState(
+    JSON.parse(sessionStorage.getItem("selectedValues")) || []
+  );
 
   useEffect(() => {
     const fetchData = async () => {
@@ -64,6 +72,27 @@ const Homepage = () => {
     setSelectedValues(selectedValuesArray);
   }, [selectedDepartment, selectedLocations, selectedFunctions]);
 
+  useEffect(() => {
+    sessionStorage.setItem(
+      "selectedDepartment",
+      JSON.stringify(selectedDepartment)
+    );
+    sessionStorage.setItem(
+      "selectedLocations",
+      JSON.stringify(selectedLocations)
+    );
+    sessionStorage.setItem(
+      "selectedFunctions",
+      JSON.stringify(selectedFunctions)
+    );
+    sessionStorage.setItem("selectedValues", JSON.stringify(selectedValues));
+  }, [
+    selectedDepartment,
+    selectedLocations,
+    selectedFunctions,
+    selectedValues,
+  ]);
+
   const fetchJobsData = async () => {
     try {
       let apiUrl = "https://teknorix.jobsoid.com/api/v1/jobs";
@@ -98,7 +127,7 @@ const Homepage = () => {
         acc[departmentTitle].push(job);
         return acc;
       }, {});
-      // console.log("ppp", groupedJobs);
+
       setJobs(groupedJobs);
     } catch (error) {
       setError(error);
@@ -138,7 +167,14 @@ const Homepage = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center item-center mt-40">
+        <div
+          class="w-12 h-12 rounded-full animate-spin
+              border-4 border-solid border-green-500 border-t-transparent"
+        ></div>
+      </div>
+    );
   }
 
   return (
@@ -155,7 +191,7 @@ const Homepage = () => {
             <button
               type="button"
               className="absolute inset-y-0 right-0 px-4 py-3 text-sm font-medium text-white bg-blue-500 rounded-r-lg hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
-              onClick={() => {}}
+              onClick={() => fetchJobsData}
             >
               Search
             </button>
@@ -168,9 +204,7 @@ const Homepage = () => {
             value={JSON.stringify(selectedDepartment)}
             onChange={(e) => setSelectedDepartment(JSON.parse(e.target.value))}
           >
-            <option value="" disabled={true}>
-              Department
-            </option>
+            <option value="">Department</option>
             {departments.map((item) => (
               <option key={item.id} value={JSON.stringify(item)}>
                 {item.title}
@@ -183,9 +217,7 @@ const Homepage = () => {
             value={JSON.stringify(selectedLocations)}
             onChange={(e) => setSelectedLocations(JSON.parse(e.target.value))}
           >
-            <option disabled={true} value="">
-              Location
-            </option>
+            <option value="">Location</option>
             {locations.map((item) => (
               <option key={item.id} value={JSON.stringify(item)}>
                 {item.title}
@@ -198,9 +230,7 @@ const Homepage = () => {
             value={JSON.stringify(selectedFunctions)}
             onChange={(e) => setSelectedFunctions(JSON.parse(e.target.value))}
           >
-            <option disabled={true} value="">
-              Function
-            </option>
+            <option value="">Function</option>
             {functions.map((item) => (
               <option key={item.id} value={JSON.stringify(item)}>
                 {item.title}
@@ -239,7 +269,7 @@ const Homepage = () => {
             <div className="bg-blue-500 w-9 h-1 mt-3 mb-4" />
 
             {jobs.map((job) => (
-              <Card key={job.id} job={job} all={jobs} />
+              <Card key={job?.id} job={job} all={jobs} />
             ))}
           </div>
         ))}
